@@ -5,11 +5,15 @@ import cv2
 import numpy as np
 
 def load_data(img_dir, mask_dir = None, exist_mask = True):
-    if (img_dir[-3:] == '.pt') and (mask_dir[-3:] == '.pt'):
+    if (img_dir[-3:] == '.h5') and (mask_dir[-3:] == '.h5'):
         images = h5py.File(img_dir, 'r')
+        images = images['images']
+        images = np.array(images[:, :, :, :])
         if exist_mask:
             masks = h5py.File(mask_dir, 'r')
-    elif (img_dir[-3:] != '.pt') and (mask_dir[-3:] != '.pt'):
+            masks = masks['images']
+            masks = np.array(masks[:, :, :, :])
+    elif (img_dir[-3:] != '.h5'):
         image_files  = sorted(os.listdir(img_dir))
         images = []
         for img in tqdm(image_files):

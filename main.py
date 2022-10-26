@@ -6,11 +6,12 @@ import keras
 import matplotlib.pyplot as plt
 import os
 
+
 ## 0. Set parameters
-train_image_dir = './data/train/image'
-train_mask_dir = './data/train/mask'
-valid_image_dir = './data/valid/image'
-valid_mask_dir = './data/valid/mask'
+train_image_dir = './data/train/sample_image_validating.h5'
+train_mask_dir = './data/train/sample_mask_validating.h5'
+valid_image_dir = './data/test/image'
+valid_mask_dir = './data/test/mask'
 
 os.makedirs('./result', exist_ok=True)
 
@@ -26,25 +27,31 @@ print('Done!')
 
 ## 2. Dataloader 생성
 # Dataset for train images
+BACKBONE = 'efficientnetb3'
+BATCH_SIZE = 4
+preprocess_input = sm.get_preprocessing(BACKBONE)
+
 train_dataset = ConstructDataset(
     train_dict['images'],
-    train_dict['masks']
+    train_dict['masks'],
+    preprocessing=preprocess_input
 )
 
 valid_dataset = ConstructDataset(
     valid_dict['images'],
-    valid_dict['masks']
+    valid_dict['masks'],
+    preprocessing=preprocess_input
 )
 
-BATCH_SIZE = 4 # need to change, sample size is 100
+
+# need to change, sample size is 100
 train_dataloader = Dataloder(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 valid_dataloader = Dataloder(valid_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
 ## 3. 모델 생성
-BACKBONE = 'efficientnetb3'
 CLASSES = ['lip']
 LR = 0.0001
-EPOCHS = 40 # need to change, it was 40
+EPOCHS = 100 # need to change, it was 40
 
 # define network parameters
 n_classes = 1 if len(CLASSES) == 1 else (len(CLASSES) + 1)  # case for binary and multiclass segmentation

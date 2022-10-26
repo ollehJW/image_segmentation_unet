@@ -9,17 +9,8 @@ def get_non_spatial_augmentation():
 
         A.OneOf(
             [
-                A.CLAHE(p=1),
                 A.RandomBrightness(p=1),
                 A.RandomGamma(p=1),
-            ],
-            p=0.9,
-        ),
-
-        A.OneOf(
-            [
-                A.Blur(blur_limit=3, p=1),
-                A.MotionBlur(blur_limit=3, p=1),
             ],
             p=0.9,
         )
@@ -40,7 +31,7 @@ spatial_augmentation = get_spatial_augmentation()
 non_spatial_augmentation = get_non_spatial_augmentation()
 augmentation = dict({'spatial': spatial_augmentation, 'non_spatial': non_spatial_augmentation})
 
-class ConstructDataset():
+class ConstructDataset(Sequence):
     """
     #####edited version#####
     Args:
@@ -124,11 +115,10 @@ class ConstructDataset():
             spatial = self.augmentation['spatial'](image=image, mask=mask)
             image = spatial['image']
             mask = spatial['mask']
-            # image = self.augmentation['non_spatial'](image=image)['image']
+            # image = self.augmentation['non_spatial'](image=np.float32(image))['image']
         # apply preprocessing
         if self.preprocessing:
-            sample = self.preprocessing(image=image, mask=mask)
-            image, mask = sample['image'], sample['mask']
+            image = self.preprocessing(image)
 
         return image, mask
 
